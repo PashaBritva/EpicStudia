@@ -1,63 +1,76 @@
 .movie-card {
-    background: #1c1c1c;
-    padding: 20px;
-    border-radius: 12px;
-    margin: 10px auto; /* Центрирует блок по горизонтали */
-    width: 700px; /* Фиксированная ширина блока */
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
+    display: flex;
+    justify-content: center;
+    margin: 20px;
 }
 
-.movie-card:hover {
-    transform: translateY(-5px);
+.card {
+    max-width: 360px;
+    width: 100%;
+    background-color: #212121;
+    color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transition: transform 0.3s ease;
 }
 
-.movie-card video {
-    border-radius: 12px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
+.card:hover {
+    transform: scale(1.03);
 }
 
-.movie-card video:hover {
-    transform: scale(1.05);
+.card-media {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    background-color: #000;
 }
 
-p {
-    color: #ccc;
-    font-size: 1.4rem;
-    line-height: 1.6;
+.card-content {
+    padding: 16px;
 }
 
-.watch-link {
-    display: inline-block;
-    padding: 10px 20px;
-    margin-top: 15px;
-    background-color: #007bff;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 8px;
-    transition: background-color 0.3s;
+.card-title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #ffffff;
 }
 
-.watch-link:hover {
-    background-color: #0056b3;
+.card-description {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    color: #b0b0b0;
 }
 
 .hashtags {
-    text-align: center;
-    margin: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 16px;
 }
 
-.hashtags a {
-    margin-right: 5px;
-    padding: 5px;
-    background-color: #007bff;
+.chip {
+    font-size: 0.8rem;
+    background-color: #373737;
+    color: #ffffff;
+    transition: background-color 0.2s ease;
+}
+
+.chip:hover {
+    background-color: #505050;
+}
+
+.watch-button {
+    width: 100%;
+    background-color: #cc0000;
     color: white;
-    border-radius: 5px;
+    text-transform: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
 }
 
-.hashtags a:hover {
-    cursor: pointer;
-    background-color: #0056b3;
+.watch-button:hover {
+    background-color: #a30000;
 }
