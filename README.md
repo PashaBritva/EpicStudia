@@ -12,7 +12,7 @@
 ## Структура проекта
 ```
 src/
-│── components/        # Повторно используемые компоненты
+│── components/        # Компоненты
 │   ├── Header.jsx     # Шапка сайта
 │   ├── MovieCard.jsx  # Карточка фильма
 │   ├── SearchCard.jsx # Поиск фильмов
@@ -25,12 +25,6 @@ src/
 │
 │── services/          # API-запросы к серверу
 │   ├── api.js         # Файл с API-функциями
-│
-│── styles/            # Стилизация компонентов
-│   ├── Header.css
-│   ├── index.css
-│   ├── MovieCard.css
-│   ├── MoviePage.css
 │
 │── theme/             # Тема оформления
 │   ├── theme.jsx      # Настройки темы
