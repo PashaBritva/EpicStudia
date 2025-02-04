@@ -75,7 +75,6 @@ function MoviePage() {
     }, [id]);
 
     const handleCommentSubmit = async () => {
-        console.log(user);
         if (comment.trim() === '' || comment.length > MAX_COMMENT_LENGTH) return;
         await addComment(id, comment, user.username);
         setComment('');
