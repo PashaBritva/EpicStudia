@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { API_URL, getMovieById, addComment, getCommentByMovieId } from '../services/api';
+import {API_URL, getMovieById, addComment, getCommentByMovieId, getUserProfile} from '../services/api';
 import {
     Box,
     Typography,
@@ -13,7 +13,7 @@ import {
     IconButton,
     Select,
     MenuItem,
-    Slider
+    Slider, Rating
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -21,12 +21,14 @@ import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import MovieCard from "../components/MovieCard.jsx";
 
 function MoviePage() {
     const { id } = useParams();
     const [movie, setMovie] = useState(null);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
+    const [rating, setRating] = useState(MovieCard.rating);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [quality, setQuality] = useState('720p');
@@ -34,9 +36,12 @@ function MoviePage() {
     const [volume, setVolume] = useState(100);
     const [pVolume, setPvolume] = useState(100);
     const [currentTime, setCurrentTime] = useState(0);
-    const [bufferedTime, setBufferedTime] = useState(0); // Полоса прогрузки
+    const [bufferedTime, setBufferedTime] = useState(0);
     const videoRef = useRef(null);
+    const [user, setUser] = useState(null);
     const MAX_COMMENT_LENGTH = 70;
+
+    const token = localStorage.getItem('token');
 
     useEffect(() => {
         getMovieById(id)
@@ -48,10 +53,20 @@ function MoviePage() {
         try {
             const data = await getCommentByMovieId(id);
             setComments(Array.isArray(data) ? data : []);
+            // eslint-disable-next-line no-unused-vars
         } catch (error) {
             setComments([]);
         }
     };
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const response = await getUserProfile(token);
+            setUser(response);
+        };
+
+        fetchProfile();
+    }, [token]);
 
     useEffect(() => {
         fetchComments();
@@ -60,10 +75,11 @@ function MoviePage() {
     }, [id]);
 
     const handleCommentSubmit = async () => {
+        console.log(user);
         if (comment.trim() === '' || comment.length > MAX_COMMENT_LENGTH) return;
-        await addComment(id, comment);
+        await addComment(id, comment, user.username);
         setComment('');
-        fetchComments();
+        await fetchComments();
     };
 
     const togglePlay = () => {
@@ -81,7 +97,7 @@ function MoviePage() {
             setIsMuted(true);
             setVolume(0);
         } else {
-            setVolume(pVolume)
+            setVolume(pVolume);
             setIsMuted(false);
         }
         videoRef.current.muted = !videoRef.current.muted;
@@ -107,7 +123,6 @@ function MoviePage() {
 
     const handleTimeUpdate = () => {
         setCurrentTime(videoRef.current.currentTime);
-        // Получаем информацию о прогрузке
         const buffered = videoRef.current.buffered;
         if (buffered.length > 0) {
             setBufferedTime(buffered.end(buffered.length - 1));
@@ -159,7 +174,12 @@ function MoviePage() {
                 backgroundColor: '#212121',
                 color: '#ffffff',
                 borderRadius: '10px',
-                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.8)'
+                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.8)',
+                '@media (max-width: 600px)': {
+                    maxWidth: '100%',
+                    margin: '10px',
+                    padding: '15px',
+                }
             }}
         >
             <Typography variant="h4" gutterBottom>
@@ -170,7 +190,6 @@ function MoviePage() {
                     <Typography variant="body1" sx={{ marginBottom: '20px', color: '#bdbdbd' }}>
                         {movie.description}
                     </Typography>
-                    {/* Видео плеер с кастомным полноэкранным режимом, выбором качества, регулировкой громкости */}
                     <Box sx={videoContainerStyles}>
                         <video
                             ref={videoRef}
@@ -201,7 +220,7 @@ function MoviePage() {
                                     onChange={handleVolumeChange}
                                     aria-labelledby="volume-slider"
                                     size="small"
-                                    sx={{ color: '#fff' }}
+                                    sx={{ color: '#fff', height: '3px' }}
                                 />
                             </Box>
                         </Box>
@@ -232,30 +251,6 @@ function MoviePage() {
                                 {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
                             </IconButton>
                         </Box>
-
-                        {/* Полоса прогрузки */}
-                        {/*<Box*/}
-                        {/*    sx={{*/}
-                        {/*        position: 'absolute',*/}
-                        {/*        bottom: '60px',*/}
-                        {/*        left: '10px',*/}
-                        {/*        right: '10px',*/}
-                        {/*        height: '3px',*/}
-                        {/*        backgroundColor: '#616161',*/}
-                        {/*        borderRadius: '2px',*/}
-                        {/*    }}*/}
-                        {/*>*/}
-                        {/*    <Box*/}
-                        {/*        sx={{*/}
-                        {/*            width: `${(bufferedTime / videoRef.current) * 100}%`,*/}
-                        {/*            height: '100%',*/}
-                        {/*            backgroundColor: '#00e676',*/}
-                        {/*            borderRadius: '2px',*/}
-                        {/*        }}*/}
-                        {/*    />*/}
-                        {/*</Box>*/}
-
-                        {/* Полоса прокрутки */}
                         <Slider
                             value={currentTime}
                             onChange={handleSeek}
@@ -263,18 +258,41 @@ function MoviePage() {
                             max={videoRef.current ? videoRef.current.duration : 0}
                             sx={{
                                 position: 'absolute',
-                                bottom: '50px',
-                                left: '10px',
-                                right: '10px',
-                                height: '3px',
+                                bottom: '44px',  // Расположение ползунка по вертикали
+                                left: '10px',    // Отступ слева
+                                right: '10px',   // Отступ справа (не выходит за пределы)
+                                height: '2px',   // Высота ползунка
                                 color: '#fff',
+                                width: 'calc(100% - 20px)',
                                 '& .MuiSlider-thumb': {
-                                    backgroundColor: '#fff',
-                                }
+                                    backgroundColor: '00000000',
+                                    width: 10,
+                                    height: 10,
+                                },
+                                '& .MuiSlider-track': {
+                                    backgroundColor: '00000000',
+                                },
+                                '& .MuiSlider-rail': {
+                                    backgroundColor: '#ffffff',
+                                    height: '4px'
+                                },
                             }}
                         />
                     </Box>
-
+                    <Box sx={{ textAlign: 'left'}}>
+                        <Rating
+                            name="size-large"
+                            value={rating}
+                            precision={0.5}
+                            onChange={(event, newValue) => {
+                                setRating(newValue);
+                            }}
+                            sx={{
+                                color: '#ffd700',
+                                margin: '0 0 15px 0'
+                            }}
+                        />
+                    </Box>
                     <Typography variant="h5" gutterBottom>
                         Комментарии
                     </Typography>
@@ -289,7 +307,7 @@ function MoviePage() {
                         }}
                     >
                         {comments.length > 0 ? (
-                            comments.map((c, index) => (
+                            comments.slice().reverse().map((c, index) => (
                                 <Box key={index}>
                                     <ListItem disableGutters>
                                         <ListItemText

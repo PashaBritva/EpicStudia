@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Card, CardMedia, CardContent, Typography, Chip, Button, Box, LinearProgress, Rating } from '@mui/material';
-import PropTypes from "prop-types";
-import { useRef, useState } from "react";
+import PropTypes from 'prop-types';
+import { useRef, useState, useEffect } from 'react';
 import { API_URL } from '../services/api';
 
 MovieCard.propTypes = {
@@ -20,7 +20,15 @@ function MovieCard({ movie }) {
     const [progress, setProgress] = useState(0);
     const [rating, setRating] = useState(movie.rating);
     const videoRef = useRef(null);
-    let timer = null;
+    let timer = useRef(null); // Обновление timer на useRef
+
+    useEffect(() => {
+        return () => {
+            if (timer.current) {
+                clearInterval(timer.current);
+            }
+        };
+    }, []);
 
     const handleMouseEnter = () => {
         setIsHovered(true);
@@ -30,33 +38,9 @@ function MovieCard({ movie }) {
         if (video) {
             video.currentTime = 0; // Сброс на начало
             video.play().catch((err) => {
-                console.warn("Video play interrupted:", err);
-            }); // Запуск видео
+                console.warn('Video play interrupted:', err);
+            });
         }
-
-        // Таймер для обновления кадра каждые 5 секунд
-        // timer = setInterval(() => {
-        //     setProgress((prev) => {
-        //         if (prev >= 100) {
-        //             clearInterval(timer);
-        //             if (video) {
-        //                 video.pause(); // Остановка видео
-        //                 video.currentTime = 0; // Возврат к началу
-        //             }
-        //             return 100;
-        //         }
-        //
-        //         if (video) {
-        //             video.pause();
-        //             video.currentTime = Math.min(video.currentTime + 5, video.duration - 0.1);
-        //             video.play().catch((err) => {
-        //                 console.log("Video play interrupted:", err); // Предотвращение выброса ошибки
-        //             });
-        //         }
-        //
-        //         return prev + 10; // Прогресс увеличивается каждые 1 секунду (5 итераций до 100%)
-        //     });
-        // }, 1000);
     };
 
     const handleMouseLeave = () => {
@@ -69,12 +53,11 @@ function MovieCard({ movie }) {
             video.currentTime = 0;
         }
 
-        if (timer) {
-            clearInterval(timer);
-            timer = null;
+        if (timer.current) {
+            clearInterval(timer.current);
+            timer.current = null;
         }
     };
-
 
     return (
         <Box
@@ -212,10 +195,7 @@ function MovieCard({ movie }) {
                         >
                             Смотреть
                         </Button>
-                        <Box sx={{
-                            textAlign: 'Right',
-                            gridColumn: 2,
-                        }}>
+                        <Box sx={{ textAlign: 'right', gridColumn: 2 }}>
                             <Rating
                                 name="size-large"
                                 value={rating}
@@ -230,7 +210,6 @@ function MovieCard({ movie }) {
                             />
                         </Box>
                     </Box>
-
                 </CardContent>
             </Card>
         </Box>

@@ -73,7 +73,6 @@ function Header() {
                         onChange={handleSearch}
                         placeholder="Поиск по хештегам"
                         sx={{
-                            backgroundColor: '#1e1e1e',
                             borderRadius: 1,
                             input: { color: 'white' },
                         }}
