@@ -78,4 +78,4 @@ This software is proprietary and confidential. Unauthorized copying, distributio
 
 The software is provided "as is," without warranty of any kind, express or implied. The owner reserves all rights not expressly granted.
 
-For inquiries about licensing, please contact: `britanpavel65@gmail.com`
+For inquiries about licensing, please contact: `isaac@epicstudia.ru`
