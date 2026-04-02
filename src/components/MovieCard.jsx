@@ -2,25 +2,38 @@ import { Link } from 'react-router-dom';
 import { Card, CardMedia, CardContent, Typography, Chip, Button, Box, LinearProgress, Rating } from '@mui/material';
 import PropTypes from 'prop-types';
 import { useRef, useState, useEffect } from 'react';
-import { API_URL } from '../services/api';
+import { API_URL, setMovieRating } from '../services/api';
 
 MovieCard.propTypes = {
     movie: PropTypes.shape({
         id: PropTypes.number.isRequired,
         title: PropTypes.string.isRequired,
         description: PropTypes.string.isRequired,
-        fullMovieUrl: PropTypes.string.isRequired,
+        fullMovieUrl: PropTypes.string,
         hashtags: PropTypes.string.isRequired,
-        rating: PropTypes.number.isRequired,
+        rating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }).isRequired,
 };
 
 function MovieCard({ movie }) {
     const [isHovered, setIsHovered] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [rating, setRating] = useState(movie.rating || 0);
+    const [rating, setRating] = useState(parseFloat(movie.rating) || 0);
     const videoRef = useRef(null);
     const timerRef = useRef(null);
+    const token = localStorage.getItem('token');
+
+    const handleRatingChange = async (event, newValue) => {
+        if (!newValue) return;
+        setRating(newValue);
+        
+        try {
+            await setMovieRating(movie.id, newValue, token);
+        } catch (err) {
+            console.error('Failed to set rating:', err);
+            setRating(movie.rating || 0);
+        }
+    };
 
     useEffect(() => {
         return () => {
@@ -207,17 +220,21 @@ function MovieCard({ movie }) {
                         </Button>
                         <Box sx={{ textAlign: 'right', gridColumn: 2 }}>
                             <Rating
-                                name="size-large"
+                                name="movie-rating"
                                 value={rating}
                                 precision={0.5}
-                                onChange={(event, newValue) => {
-                                    setRating(newValue);
-                                }}
+                                onChange={token ? handleRatingChange : null}
+                                readOnly={!token}
                                 sx={{
                                     color: '#ffd700',
                                     gridColumn: 2,
                                 }}
                             />
+                            {!token && (
+                                <Typography variant="caption" sx={{ color: '#bdbdbd' }}>
+                                    Войдите чтобы оценить
+                                </Typography>
+                            )}
                         </Box>
                     </Box>
                 </CardContent>

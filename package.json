@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite --port 3000 --host",
     "dev:all": "concurrently --kill-others-on-fail \"npm run dev\" \"npm run api\"",
-    "api": "node ../EpicStudiaApi/bin/www",
+    "api": "cd ../EpicStudiaApi && node bin/www",
     "api:install": "cd ../EpicStudiaApi && npm install",
     "install:all": "npm install && npm run api:install",
     "build": "vite build",
