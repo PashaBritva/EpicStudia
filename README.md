@@ -1,81 +1,227 @@
 # ЭпикСтудия
 
-## Описание
-ЭпикСтудия — это веб-приложение для просмотра фильмов, добавления комментариев и взаимодействия с пользователями.
+[![CI/CD](https://github.com/PashaBritva/EpicStudia/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/PashaBritva/EpicStudia/actions/workflows/ci-cd.yml)
+[![License](https://img.shields.io/badge/license-proprietary-blue.svg)](LICENSE)
 
-## Технологии
-- **Vite + React** — основной фронтенд-фреймворк
-- **React Router** — маршрутизация между страницами
-- **Axios** — работа с API
-- **Material UI** — стилизация компонентов
+Веб-приложение для просмотра фильмов, добавления комментариев и взаимодействия с пользователями.
 
-## Структура проекта
+## 📋 Содержание
+
+- [Возможности](#возможности)
+- [Технологии](#технологии)
+- [Быстрый старт](#быстрый-старт)
+- [Разработка](#разработка)
+- [Структура проекта](#структура-проекта)
+- [API](#api)
+- [Вклад в проект](#вклад-в-проект)
+- [Лицензия](#лицензия)
+
+## ✨ Возможности
+
+- 🎬 Просмотр фильмов в различных качествах (360p, 720p, 1080p)
+- 💬 Комментарии к фильмам
+- ⭐ Система рейтингов
+- 🔍 Поиск по хэштегам
+- 👤 Профиль пользователя
+- 🔐 Авторизация и регистрация
+- 🛡️ Админ-панель для управления пользователями
+- 📱 Адаптивный дизайн
+
+## 🛠 Технологии
+
+**Frontend:**
+- **Vite + React 18** — сборка и основной фреймворк
+- **React Router v7** — маршрутизация
+- **Material UI v6** — UI компоненты
+- **Axios** — HTTP-клиент
+
+**Backend:**
+- **Node.js + Express** — сервер
+- **SQLite/MySQL/PostgreSQL** — база данных
+- **JWT** — аутентификация
+- **Multer** — загрузка файлов
+- **FFmpeg** — обработка видео
+
+## 🚀 Быстрый старт
+
+### Требования
+
+- Node.js 18+
+- npm 9+
+- Git
+
+### Установка
+
+#### Автоматическая установка (рекомендуется)
+
+```bash
+# Для macOS/Linux
+./scripts/init.sh
+
+# Для Windows (PowerShell)
+./scripts/init.ps1
 ```
-src/
-│── components/        # Компоненты
-│   ├── Header.jsx     # Шапка сайта
-│   ├── MovieCard.jsx  # Карточка фильма
-│   ├── SearchCard.jsx # Поиск фильмов
-│
-│── pages/             # Основные страницы приложения
-│   ├── CreateMoviePage.jsx # Страница создания фильма
-│   ├── HomePage.jsx        # Главная страница
-│   ├── MoviePage.jsx       # Страница просмотра фильма
-│   ├── UserPage.jsx        # Профиль пользователя
-│
-│── services/          # API-запросы к серверу
-│   ├── api.js         # Файл с API-функциями
-│
-│── theme/             # Тема оформления
-│   ├── theme.jsx      # Настройки темы
-│
-│── App.js             # Главный компонент приложения
-```
 
-## Установка
+#### Ручная установка
+
 1. Склонируйте репозиторий:
-   ```sh
+   ```bash
    git clone https://github.com/PashaBritva/EpicStudia.git
-   ```
-2. Перейдите в папку проекта:
-   ```sh
    cd EpicStudia
    ```
-3. Установите зависимости:
-   ```sh
-   npm install
+
+2. Установите зависимости:
+   ```bash
+   npm run install:all
    ```
-4. Запустите приложение:
-   ##### Для удобной разработки
-      ```sh
-      npm dev
-      ```
-   ##### Для сборки веб-приложения в `html-css-js`
-      ```sh
-      npm build
-      ```
-   ##### Для запуска обычного веб-приложения в html-css-js (только после `npm build`)
-      ```sh
-      npm preview
-      ```
 
-## API
-- API находится в файле `services/api.js` и включает в себя:
-- - Получение списка фильмов
-- - Получение фильма по ID
-- - Добавление нового фильма
-- - Добавление комментариев
-- - Вход пользователя / регистрация
-- - Получение списка пользователей
-- - Изменение роли пользователя
-- - Блокировка пользователя
+3. Настройте окружение:
+   ```bash
+   # Скопируйте .env.example в .env
+   cp .env.example .env
+   
+   # Отредактируйте .env при необходимости
+   ```
 
-## Лицензия
+### Запуск
+
+```bash
+# Запуск фронтенда и API одновременно
+npm run dev:all
+
+# Только фронтенд
+npm run dev
+
+# Только API
+npm run api
+```
+
+Приложение будет доступно по адресу: http://localhost
+
+## 👨‍💻 Разработка
+
+### Доступные команды
+
+| Команда | Описание |
+|---------|----------|
+| `npm run dev` | Запуск фронтенда (Vite) |
+| `npm run dev:all` | Запуск фронтенда и API |
+| `npm run api` | Запуск только API |
+| `npm run build` | Сборка проекта |
+| `npm run lint` | Проверка кода ESLint |
+| `npm run preview` | Предпросмотр сборки |
+| `npm run install:all` | Установка всех зависимостей |
+
+### Ветвление
+
+Мы используем [GitHub Flow](https://guides.github.com/introduction/flow/):
+
+```bash
+# Создать ветку для новой функции
+git checkout -b feature/your-feature-name
+
+# Создать ветку для исправления
+git checkout -b fix/bug-description
+```
+
+### Коммиты
+
+Используем [Conventional Commits](https://www.conventionalcommits.org/):
+
+```bash
+feat: добавить новую функцию
+fix: исправить ошибку
+docs: обновить документацию
+style: форматирование кода
+refactor: рефакторинг
+test: добавить тесты
+chore: изменения в сборке
+```
+
+## 📁 Структура проекта
+
+```
+EpicStudia/
+├── .github/                    # GitHub конфигурация
+│   ├── workflows/             # CI/CD pipeline
+│   ├── ISSUE_TEMPLATE/        # Шаблоны issue
+│   └── PULL_REQUEST_TEMPLATE/ # Шаблон PR
+├── scripts/                   # Скрипты инициализации
+├── src/
+│   ├── components/            # React компоненты
+│   │   ├── Header.jsx         # Шапка
+│   │   ├── MovieCard.jsx      # Карточка фильма
+│   │   └── ...
+│   ├── pages/                 # Страницы
+│   │   ├── HomePage.jsx       # Главная
+│   │   ├── MoviePage.jsx      # Фильм
+│   │   ├── UserPage.jsx       # Профиль
+│   │   ├── SearchPage.jsx     # Поиск
+│   │   └── CreateMoviePage.jsx # Загрузка фильма
+│   ├── services/              # API сервисы
+│   │   └── api.js
+│   ├── theme/                 # Тема Material UI
+│   │   └── theme.jsx
+│   ├── App.jsx                # Главный компонент
+│   └── main.jsx               # Точка входа
+├── .env                       # Переменные окружения
+├── .env.example               # Пример окружения
+├── package.json               # Зависимости
+└── vite.config.js             # Конфигурация Vite
+```
+
+## 📡 API
+
+Базовый URL: `/api/v1`
+
+### Эндпоинты
+
+#### Фильмы
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| GET | `/movies` | Получить список фильмов |
+| GET | `/movies/:id` | Получить фильм по ID |
+| GET | `/movies/:id/stream` | Стриминг видео |
+| POST | `/movies/upload` | Загрузить фильм |
+| GET | `/movies/search` | Поиск по хэштегам |
+| POST | `/movies/:id/rating` | Оценить фильм |
+| POST | `/movies/:id/comment` | Добавить комментарий |
+| GET | `/movies/:id/comments` | Получить комментарии |
+
+#### Пользователи
+| Метод | Эндпоинт | Описание |
+|-------|----------|----------|
+| POST | `/user/register` | Регистрация |
+| POST | `/user/login` | Вход |
+| GET | `/user/profile` | Получить профиль |
+| GET | `/user/all` | Все пользователи (admin) |
+| POST | `/user/:id/block` | Заблокировать (admin) |
+| POST | `/user/:id/role` | Изменить роль (admin) |
+
+## 🤝 Вклад в проект
+
+Приветствуется любой вклад в проект! Пожалуйста, ознакомьтесь с [CONTRIBUTING.md](CONTRIBUTING.md) перед началом работы.
+
+### Как внести вклад
+
+1. Создайте Issue с описанием проблемы или предложения
+2. Форкните репозиторий
+3. Создайте ветку (`git checkout -b feature/amazing-feature`)
+4. Внесите изменения
+5. Закоммитьте (`git commit -m 'feat: amazing feature'`)
+6. Отправьте (`git push origin feature/amazing-feature`)
+7. Создайте Pull Request
+
+## 📄 Лицензия
 
 Copyright (C) 2025 ISAAC
 
-This software is proprietary and confidential. Unauthorized copying, distribution, modification, or use of this software, in whole or in part, is strictly prohibited.
+Это программное обеспечение является собственностью. Несанкционированное копирование, распространение, модификация или использование этого программного обеспечения, полностью или частично, строго запрещено.
 
-The software is provided "as is," without warranty of any kind, express or implied. The owner reserves all rights not expressly granted.
+Программное обеспечение предоставляется "как есть", без каких-либо гарантий. Владелец оставляет за собой все права, явно не предоставленные.
 
-For inquiries about licensing, please contact: `pashamarshak@ya.ru`
+По вопросам лицензирования обращайтесь: `pashamarshak@ya.ru`
+
+---
+
+**Сделано с ❤️ для любителей кино**

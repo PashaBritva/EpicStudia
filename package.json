@@ -5,6 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 80 --host",
+    "dev:all": "concurrently --kill-others-on-fail \"npm run dev\" \"npm run api\"",
+    "api": "node ../EpicStudiaApi/bin/www",
+    "api:install": "cd ../EpicStudiaApi && npm install",
+    "install:all": "npm install && npm run api:install",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview --port 80 --host"
@@ -27,6 +31,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.2.1",
     "eslint": "^9.17.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",

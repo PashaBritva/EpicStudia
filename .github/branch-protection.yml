@@ -1,0 +1,18 @@
+github:
+  autolink_references:
+    enabled: true
+
+  require_code_owner_reviews: false
+
+  required_conversation_resolution: true
+
+  required_status_checks:
+    strict: true
+    contexts:
+      - lint
+      - build
+
+  restrict_dismissals: false
+
+  signature_requirement:
+    enabled: false
