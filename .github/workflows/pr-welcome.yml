@@ -1,0 +1,28 @@
+name: PR Welcome
+
+on:
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        pr-message: |
+          👋 Привет! Спасибо за ваш первый Pull Request в EpicStudia!
+          
+          📋 Что происходит дальше:
+          1. CI/CD проверки запустятся автоматически
+          2. Кодовые владельцы будут уведомлены о ревью
+          3. После аппрува ваш PR будет смержен
+          
+          📝 Убедитесь, что:
+          - [ ] Вы заполнили описание PR
+          - [ ] Код проходит линтер (`npm run lint`)
+          - [ ] Сборка успешна (`npm run build`)
+          - [ ] Вы следуете [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md)
+          
+          Если у вас есть вопросы — задавайте в комментариях! 🚀

@@ -1,0 +1,28 @@
+# Кодовые владельцы EpicStudia
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Владелец по умолчанию
+* @PashaBritva
+
+# Фронтенд компоненты
+src/components/ @PashaBritva
+src/pages/ @PashaBritva
+
+# Сервисы и API
+src/services/ @PashaBritva
+
+# Тема и стили
+src/theme/ @PashaBritva
+
+# Конфигурация
+*.config.js @PashaBritva
+.github/ @PashaBritva
+package.json @PashaBritva
+
+# Документация
+*.md @PashaBritva
+CONTRIBUTING.md @PashaBritva
+README.md @PashaBritva
+
+# Скрипты
+scripts/ @PashaBritva

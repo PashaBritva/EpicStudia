@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Проверка сообщения коммита на соответствие Conventional Commits
+commit_msg=$(cat "$1")
+if ! echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"; then
+    echo "❌ Сообщение коммита не соответствует формату Conventional Commits"
+    echo ""
+    echo "Примеры правильных сообщений:"
+    echo "  feat: добавить новую функцию"
+    echo "  fix: исправить ошибку с загрузкой"
+    echo "  docs: обновить документацию"
+    echo "  refactor: оптимизировать код"
+    echo "  chore: обновить зависимости"
+    echo ""
+    exit 1
+fi
