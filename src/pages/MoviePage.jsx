@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {API_URL, getMovieById, addComment, getCommentByMovieId, getUserProfile, setMovieRating} from '../services/api';
 import {
@@ -37,6 +37,7 @@ function MoviePage() {
     const [volume, setVolume] = useState(100);
     const [pVolume, setPvolume] = useState(100);
     const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
     const videoRef = useRef(null);
     const [user, setUser] = useState(null);
     const MAX_COMMENT_LENGTH = 70;
@@ -52,14 +53,14 @@ function MoviePage() {
             .catch(() => setMovie(null));
     }, [id]);
 
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         try {
             const data = await getCommentByMovieId(id);
             setComments(Array.isArray(data) ? data : []);
         } catch {
             setComments([]);
         }
-    };
+    }, [id]);
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -206,6 +207,7 @@ function MoviePage() {
                             src={`${API_URL}/movies/${id}/stream?quality=${quality}`}
                             style={videoStyles}
                             onContextMenu={(e) => e.preventDefault()}
+                            onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
                         />
                         <Box
                             sx={{
@@ -264,7 +266,7 @@ function MoviePage() {
                             value={currentTime}
                             onChange={handleSeek}
                             min={0}
-                            max={videoRef.current ? videoRef.current.duration : 0}
+                            max={duration}
                             sx={{
                                 position: 'absolute',
                                 bottom: '44px',  // Расположение ползунка по вертикали
