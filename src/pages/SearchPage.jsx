@@ -11,22 +11,37 @@ function SearchPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!hashtag) {
-            setMovies([]);
-            setLoading(false);
-            return;
-        }
+        let isMounted = true;
 
-        getMoviesByHashtags(hashtag)
-            .then((data) => {
-                setMovies(Array.isArray(data) ? data : []);
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error('Ошибка при поиске фильмов:', err);
-                setError('Не удалось найти фильмы по хэштегу');
-                setLoading(false);
-            });
+        const fetchMovies = async () => {
+            if (!hashtag) {
+                if (isMounted) {
+                    setMovies([]);
+                    setLoading(false);
+                }
+                return;
+            }
+
+            try {
+                const data = await getMoviesByHashtags(hashtag);
+                if (isMounted) {
+                    setMovies(Array.isArray(data) ? data : []);
+                    setLoading(false);
+                }
+            } catch (err) {
+                if (isMounted) {
+                    console.error('Ошибка при поиске фильмов:', err);
+                    setError('Не удалось найти фильмы по хэштегу');
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchMovies();
+
+        return () => {
+            isMounted = false;
+        };
     }, [hashtag]);
 
     if (loading) {

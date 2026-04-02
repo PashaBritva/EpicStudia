@@ -78,10 +78,32 @@ function MoviePage() {
     }, [token]);
 
     useEffect(() => {
-        fetchComments();
-        const interval = setInterval(fetchComments, 20000);
-        return () => clearInterval(interval);
-    }, [id]);
+        let isMounted = true;
+        let intervalId = null;
+
+        const loadComments = async () => {
+            if (isMounted) {
+                await fetchComments(true);
+            }
+        };
+
+        loadComments();
+
+        if (isMounted) {
+            intervalId = setInterval(async () => {
+                if (isMounted) {
+                    await fetchComments();
+                }
+            }, 20000);
+        }
+
+        return () => {
+            isMounted = false;
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [fetchComments]);
 
     const handleCommentSubmit = async () => {
         if (comment.trim() === '' || comment.length > MAX_COMMENT_LENGTH) return;
