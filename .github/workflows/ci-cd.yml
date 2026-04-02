@@ -45,7 +45,7 @@ jobs:
         VITE_API_URL: ${{ secrets.VITE_API_URL || 'http://localhost:5000/api/v1' }}
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: dist
         path: dist/
@@ -74,7 +74,7 @@ jobs:
         VITE_API_URL: ${{ secrets.VITE_API_URL }}
 
     - name: Upload production artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: production-build
         path: dist/
