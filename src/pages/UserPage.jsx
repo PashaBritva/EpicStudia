@@ -37,7 +37,7 @@ function UserPage() {
                     const usersResponse = await getUsers(token);
                     setUsers(usersResponse);
                 }
-            } catch (err) {
+            } catch {
                 setError('Не удалось загрузить профиль. Пожалуйста, войдите.');
                 localStorage.removeItem('token');
             } finally {
@@ -59,8 +59,8 @@ function UserPage() {
             const response = await LoginOrRegisterUser(endpoint, form.username, form.password);
             localStorage.setItem('token', response.token);
             window.location.reload();
-        } catch (err) {
-            setError(err.response?.data || 'Ошибка входа');
+        } catch {
+            setError('Ошибка входа');
         }
     };
 

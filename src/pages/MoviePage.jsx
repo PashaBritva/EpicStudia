@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import {API_URL, getMovieById, addComment, getCommentByMovieId, getUserProfile} from '../services/api';
+import {API_URL, getMovieById, addComment, getCommentByMovieId, getUserProfile, setMovieRating} from '../services/api';
 import {
     Box,
     Typography,
@@ -13,7 +13,8 @@ import {
     IconButton,
     Select,
     MenuItem,
-    Slider, Rating
+    Slider,
+    Rating
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
@@ -21,14 +22,14 @@ import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
-import MovieCard from "../components/MovieCard.jsx";
 
 function MoviePage() {
     const { id } = useParams();
     const [movie, setMovie] = useState(null);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
-    const [rating, setRating] = useState(MovieCard.rating);
+    const [rating, setRating] = useState(0);
+    const [userRating, setUserRating] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [quality, setQuality] = useState('720p');
@@ -36,7 +37,6 @@ function MoviePage() {
     const [volume, setVolume] = useState(100);
     const [pVolume, setPvolume] = useState(100);
     const [currentTime, setCurrentTime] = useState(0);
-    const [bufferedTime, setBufferedTime] = useState(0);
     const videoRef = useRef(null);
     const [user, setUser] = useState(null);
     const MAX_COMMENT_LENGTH = 70;
@@ -45,7 +45,10 @@ function MoviePage() {
 
     useEffect(() => {
         getMovieById(id)
-            .then(setMovie)
+            .then((data) => {
+                setMovie(data);
+                setRating(data.rating || 0);
+            })
             .catch(() => setMovie(null));
     }, [id]);
 
@@ -53,19 +56,24 @@ function MoviePage() {
         try {
             const data = await getCommentByMovieId(id);
             setComments(Array.isArray(data) ? data : []);
-            // eslint-disable-next-line no-unused-vars
-        } catch (error) {
+        } catch {
             setComments([]);
         }
     };
 
     useEffect(() => {
         const fetchProfile = async () => {
-            const response = await getUserProfile(token);
-            setUser(response);
+            try {
+                const response = await getUserProfile(token);
+                setUser(response);
+            } catch {
+                console.error('Ошибка при загрузке профиля');
+            }
         };
 
-        fetchProfile();
+        if (token) {
+            fetchProfile();
+        }
     }, [token]);
 
     useEffect(() => {
@@ -79,6 +87,17 @@ function MoviePage() {
         await addComment(id, comment, user.username);
         setComment('');
         await fetchComments();
+    };
+
+    const handleRatingSubmit = async (newValue) => {
+        if (!newValue) return;
+        setUserRating(newValue);
+        try {
+            await setMovieRating(id, newValue, token);
+            setRating(newValue);
+        } catch (err) {
+            console.error('Ошибка при отправке рейтинга:', err);
+        }
     };
 
     const togglePlay = () => {
@@ -117,14 +136,6 @@ function MoviePage() {
         setPvolume(newValue);
         if (videoRef.current) {
             videoRef.current.volume = newValue / 100;
-        }
-    };
-
-    const handleTimeUpdate = () => {
-        setCurrentTime(videoRef.current.currentTime);
-        const buffered = videoRef.current.buffered;
-        if (buffered.length > 0) {
-            setBufferedTime(buffered.end(buffered.length - 1));
         }
     };
 
@@ -194,8 +205,7 @@ function MoviePage() {
                             ref={videoRef}
                             src={`${API_URL}/movies/${id}/stream?quality=${quality}`}
                             style={videoStyles}
-                            onTimeUpdate={handleTimeUpdate}
-                            onContextMenu={(e) => e.preventDefault()} // Отключаем правый клик
+                            onContextMenu={(e) => e.preventDefault()}
                         />
                         <Box
                             sx={{
@@ -280,17 +290,20 @@ function MoviePage() {
                     </Box>
                     <Box sx={{ textAlign: 'left'}}>
                         <Rating
-                            name="size-large"
-                            value={rating}
+                            name="movie-rating"
+                            value={userRating || rating}
                             precision={0.5}
                             onChange={(event, newValue) => {
-                                setRating(newValue);
+                                handleRatingSubmit(newValue);
                             }}
                             sx={{
                                 color: '#ffd700',
                                 margin: '0 0 15px 0'
                             }}
                         />
+                        <Typography variant="body2" sx={{ color: '#bdbdbd' }}>
+                            Рейтинг: {rating.toFixed(1)}
+                        </Typography>
                     </Box>
                     <Typography variant="h5" gutterBottom>
                         Комментарии

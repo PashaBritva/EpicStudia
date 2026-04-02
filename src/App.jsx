@@ -6,23 +6,24 @@ import Header from './components/Header';
 import {Box, CssBaseline, ThemeProvider} from "@mui/material";
 import darkTheme from "./theme/theme.jsx";
 import CreateMoviePage from "./pages/CreatMoviePage.jsx";
+import SearchPage from './pages/SearchPage.jsx';
 
 function App() {
     return (
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
-                    <Router>
-                        <Header />
-                        <Box sx={{ marginTop: '64px' }}>
-                            <Routes>
-                                <Route path="/" element={<HomePage />} />
-                                <Route path="/movie/:id" element={<MoviePage />} />
-                                <Route path="/user" element={<UserPage />} />
-                                <Route path="/user/upload" element={<CreateMoviePage />} />
-                            </Routes>
-                        </Box>
-                    </Router>
-            <CssBaseline />
+            <Router>
+                <Header />
+                <Box sx={{ marginTop: '64px' }}>
+                    <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/movie/:id" element={<MoviePage />} />
+                        <Route path="/user" element={<UserPage />} />
+                        <Route path="/user/upload" element={<CreateMoviePage />} />
+                        <Route path="/movie/search/:hashtag" element={<SearchPage />} />
+                    </Routes>
+                </Box>
+            </Router>
         </ThemeProvider>
     );
 }

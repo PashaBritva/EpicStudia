@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_URL = 'http://192.168.0.16:5000/api/v1';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 export const getMovies = async () => {
     const response = await axios.get(`${API_URL}/movies`);
@@ -95,5 +95,11 @@ export const getMoviesByHashtags = async (hashtags) => {
         throw new Error('Ошибка при поиске фильмов');
     }
 
+    return response.data;
+};
+
+export const setMovieRating = async (movieId, rating, token) => {
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    const response = await axios.post(`${API_URL}/movies/${movieId}/rating`, { rating }, { headers });
     return response.data;
 };

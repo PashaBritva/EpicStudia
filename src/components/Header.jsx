@@ -11,31 +11,36 @@ import {
     Chip,
     CircularProgress,
 } from '@mui/material';
-import { getMovieById } from '../services/api';
+import { getMovies } from '../services/api';
 
 function Header() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
-
-    const handleSearch = (event) => {
-        setSearchTerm(event.target.value.toLowerCase());
-    };
+    const [allMovies, setAllMovies] = useState([]);
 
     useEffect(() => {
-        const delayDebounce = setTimeout(() => {
-            if (searchTerm.trim()) {
-                setLoading(true);
-                getMovieById(searchTerm.trim())
-                    .then((results) => setSearchResults(results))
-                    .finally(() => setLoading(false));
-            } else {
-                setSearchResults([]);
-            }
-        }, 1000);
+        getMovies()
+            .then((data) => setAllMovies(data))
+            .catch((err) => console.error('Ошибка при загрузке фильмов:', err));
+    }, []);
 
-        return () => clearTimeout(delayDebounce);
-    }, [searchTerm]);
+    const handleSearch = (event) => {
+        const value = event.target.value.toLowerCase();
+        setSearchTerm(value);
+        
+        if (value.trim()) {
+            setLoading(true);
+            const filtered = allMovies.filter((movie) => {
+                const hashtags = movie.hashtags.toLowerCase().split(',').map(t => t.trim());
+                return hashtags.some(tag => tag.includes(value) || value.includes(tag));
+            });
+            setSearchResults(filtered);
+            setLoading(false);
+        } else {
+            setSearchResults([]);
+        }
+    };
 
     return (
         <AppBar
@@ -127,9 +132,9 @@ function Header() {
                                             {movie.hashtags.split(',').map((hashtag, index) => (
                                                 <Chip
                                                     key={index}
-                                                    label={hashtag}
+                                                    label={hashtag.trim()}
                                                     component={Link}
-                                                    to={`/search/${hashtag}`}
+                                                    to={`/movie/search/${hashtag.trim().replace('#', '')}`}
                                                     sx={{
                                                         color: 'white',
                                                         backgroundColor: '#303f9f',

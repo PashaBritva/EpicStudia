@@ -18,14 +18,14 @@ MovieCard.propTypes = {
 function MovieCard({ movie }) {
     const [isHovered, setIsHovered] = useState(false);
     const [progress, setProgress] = useState(0);
-    const [rating, setRating] = useState(movie.rating);
+    const [rating, setRating] = useState(movie.rating || 0);
     const videoRef = useRef(null);
-    let timer = useRef(null); // Обновление timer на useRef
+    const timerRef = useRef(null);
 
     useEffect(() => {
         return () => {
-            if (timer.current) {
-                clearInterval(timer.current);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
             }
         };
     }, []);
@@ -36,11 +36,21 @@ function MovieCard({ movie }) {
 
         const video = videoRef.current;
         if (video) {
-            video.currentTime = 0; // Сброс на начало
+            video.currentTime = 0;
             video.play().catch((err) => {
                 console.warn('Video play interrupted:', err);
             });
         }
+
+        timerRef.current = setInterval(() => {
+            setProgress((prev) => {
+                if (prev >= 100) {
+                    clearInterval(timerRef.current);
+                    return 100;
+                }
+                return prev + 2;
+            });
+        }, 100);
     };
 
     const handleMouseLeave = () => {
@@ -53,9 +63,9 @@ function MovieCard({ movie }) {
             video.currentTime = 0;
         }
 
-        if (timer.current) {
-            clearInterval(timer.current);
-            timer.current = null;
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
         }
     };
 
