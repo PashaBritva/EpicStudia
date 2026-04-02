@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {API_URL, getMovieById, addComment, getCommentByMovieId, getUserProfile, setMovieRating} from '../services/api';
+import Hls from 'hls.js';
 import {
     Box,
     Typography,
@@ -39,18 +40,61 @@ function MoviePage() {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const videoRef = useRef(null);
+    const hlsRef = useRef(null);
     const [user, setUser] = useState(null);
     const MAX_COMMENT_LENGTH = 70;
 
     const token = localStorage.getItem('token');
+
+    // Инициализация HLS
+    const initHLS = (qualityLevel) => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        // Для HLS используем отдельный endpoint
+        const streamUrl = `${API_URL}/movies/${id}/stream.m3u8?quality=${qualityLevel}`;
+        
+        if (Hls.isSupported()) {
+            if (hlsRef.current) {
+                hlsRef.current.destroy();
+            }
+            
+            const hls = new Hls({
+                enableWorker: true,
+                lowLatencyMode: false,
+                backBufferLength: 90
+            });
+            
+            hls.loadSource(streamUrl);
+            hls.attachMedia(video);
+            hlsRef.current = hls;
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                video.play().catch(e => console.log('Autoplay prevented:', e));
+            });
+            
+            hls.on(Hls.Events.ERROR, (event, data) => {
+                console.error('HLS error:', data);
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
+            video.src = streamUrl;
+            video.addEventListener('loadedmetadata', () => {
+                video.play();
+            });
+        }
+    };
 
     useEffect(() => {
         getMovieById(id)
             .then((data) => {
                 setMovie(data);
                 setRating(data.rating || 0);
+                // Инициализируем HLS после загрузки данных о фильме
+                setTimeout(() => initHLS(quality), 100);
             })
             .catch(() => setMovie(null));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     const fetchComments = useCallback(async () => {
@@ -102,24 +146,36 @@ function MoviePage() {
             if (intervalId) {
                 clearInterval(intervalId);
             }
+            // Очистка HLS при размонтировании
+            if (hlsRef.current) {
+                hlsRef.current.destroy();
+                hlsRef.current = null;
+            }
         };
     }, [fetchComments]);
 
     const handleCommentSubmit = async () => {
         if (comment.trim() === '' || comment.length > MAX_COMMENT_LENGTH) return;
-        await addComment(id, comment, user.username);
+        
+        const username = user?.username || 'Аноним';
+        await addComment(id, comment, username);
         setComment('');
         await fetchComments();
     };
 
     const handleRatingSubmit = async (newValue) => {
         if (!newValue) return;
+        if (!token) {
+            console.error('Нет токена для рейтинга');
+            return;
+        }
         setUserRating(newValue);
         try {
             await setMovieRating(id, newValue, token);
             setRating(newValue);
         } catch (err) {
             console.error('Ошибка при отправке рейтинга:', err);
+            setUserRating(0);
         }
     };
 
@@ -145,12 +201,26 @@ function MoviePage() {
     };
 
     const handleQualityChange = (event) => {
-        setQuality(event.target.value);
-        if (videoRef.current) {
-            const currentTime = videoRef.current.currentTime;
-            videoRef.current.src = `${API_URL}/movies/${id}/stream?quality=${event.target.value}`;
-            videoRef.current.currentTime = currentTime;
-            if (isPlaying) videoRef.current.play();
+        const newQuality = event.target.value;
+        setQuality(newQuality);
+
+        const video = videoRef.current;
+        if (video && hlsRef.current) {
+            const currentTime = video.currentTime;
+            const wasPlaying = !video.paused;
+
+            hlsRef.current.destroy();
+            hlsRef.current = null;
+
+            setTimeout(() => {
+                initHLS(newQuality);
+                if (video.readyState >= 2) {
+                    video.currentTime = currentTime;
+                    if (wasPlaying) {
+                        video.play().catch(e => console.log('Play after quality change:', e));
+                    }
+                }
+            }, 100);
         }
     };
 
@@ -315,7 +385,7 @@ function MoviePage() {
                     <Box sx={{ textAlign: 'left'}}>
                         <Rating
                             name="movie-rating"
-                            value={userRating || rating}
+                            value={userRating || rating || 0}
                             precision={0.5}
                             onChange={(event, newValue) => {
                                 handleRatingSubmit(newValue);
@@ -326,7 +396,7 @@ function MoviePage() {
                             }}
                         />
                         <Typography variant="body2" sx={{ color: '#bdbdbd' }}>
-                            Рейтинг: {rating.toFixed(1)}
+                            Рейтинг: {(rating || 0).toFixed(1)}
                         </Typography>
                     </Box>
                     <Typography variant="h5" gutterBottom>

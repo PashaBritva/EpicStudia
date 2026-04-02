@@ -11,7 +11,9 @@ function CreateMoviePage() {
     });
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false); // Для блокировки кнопки отправки
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    const token = localStorage.getItem('token');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -31,15 +33,21 @@ function CreateMoviePage() {
             return;
         }
 
+        if (!token) {
+            setError('Требуется авторизация');
+            return;
+        }
+
         setIsSubmitting(true);
         try {
-            const response = await addMovie(movie);
-
+            const response = await addMovie(movie, token);
            setSuccess(response.message);
            setError(null);
-           setMovie({ title: '', description: '', hashtags: '', video: null }); // Очищаем форму
+           setMovie({ title: '', description: '', hashtags: '', video: null });
         } catch (err) {
-            console.error(err);
+            console.error('Full error:', err);
+            console.error('Response:', err.response);
+            console.error('Data:', err.response?.data);
             setError('Ошибка при загрузке фильма: ' + (err.response?.data || err.message));
         } finally {
             setIsSubmitting(false);
