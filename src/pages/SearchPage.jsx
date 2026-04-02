@@ -11,9 +11,12 @@ function SearchPage() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!hashtag) return;
+        if (!hashtag) {
+            setMovies([]);
+            setLoading(false);
+            return;
+        }
 
-        setLoading(true);
         getMoviesByHashtags(hashtag)
             .then((data) => {
                 setMovies(Array.isArray(data) ? data : []);
